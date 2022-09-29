@@ -17,3 +17,610 @@ target 'LightSDK' do
   end
 
 end
+
+platform :ios, '12.0'
+install! 'cocoapods', :share_schemes_for_development_pods => true
+inhibit_all_warnings!
+$force_use_source = "true"  #是否强制使用源码,false:不使用,true:使用 （该字段尽量不要提交，以免影响他人）
+source 'http://git.woa.com/CameraToolsGroup/PituSpecs.git'
+source 'http://git.woa.com/CameraToolsGroup/CameraToolsPodSpec.git'
+source 'http://git.woa.com/GYAIKit_iOS/GYAIKitPodSpec.git'
+source 'http://git.woa.com/T-CocoaPods/Specs.git'
+source 'http://git.woa.com/yt-sdk/yt-release/youtu-release-spec.git'
+source 'http://git.woa.com/TKits/TSpecs.git'
+source 'https://github.com/CocoaPods/Specs'
+source "https://pod-go.woa.com/QQFrameworks/pod_specs/"
+
+$static_build = ENV["static_build"]
+$lightrenderer_path = "../3rdparty/LightRenderer"
+if ENV.key?("force_use_source") && ENV["force_use_source"] != ""
+  $force_use_source = ENV["force_use_source"];
+  puts "success " + $force_use_source
+end
+
+#装载解析后的字典(2级结构)
+require "../iOSParseConfig.rb"
+$config_name = LightConfigModule.getConfigName
+$config_json_obj = LightConfigModule.getJsonConfig
+
+#jsbinding文件生成
+def create_jsbinding
+  $ENABLE_3D = $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_3D"]
+  $ENABLE_3D_BULLET_PHYSICS = $config_json_obj["ENABLE_3D"]["ENABLE_3D_BULLET_PHYSICS"]
+  $ENABLE_3D_ALEMBIC_VERTEX_ANIMATION = $config_json_obj["ENABLE_3D"]["ENABLE_3D_ALEMBIC_VERTEX_ANIMATION"]
+  $ENABLE_3D_PARTICLE_EFFECT = $config_json_obj["ENABLE_3D"]["ENABLE_3D_PARTICLE_EFFECT"]
+  $ENABLE_3D_FUR = $config_json_obj["ENABLE_3D"]["ENABLE_3D_FUR"]
+  $ENABLE_3D_DYNAMIC_BONE = $config_json_obj["ENABLE_3D"]["ENABLE_3D_DYNAMIC_BONE"]
+  $ENABLE_3D_ANIMOJI = $config_json_obj["ENABLE_3D"]["ENABLE_3D_ANIMOJI"]
+  $ENABLE_RENDERV2 = $config_json_obj["ENABLE_3D"]["ENABLE_RENDERV2"]
+  $ENABLE_3D_PHYSICS_SIMULATION = $config_json_obj["ENABLE_3D_BULLET_PHYSICS"]["ENABLE_3D_PHYSICS_SIMULATION"]
+  $ENABLE_3D_BONE_COLLISION = $config_json_obj["ENABLE_3D_BULLET_PHYSICS"]["ENABLE_3D_BONE_COLLISION"]
+  $ENABLE_3D_BODY_SKELETON_MOTION = $config_json_obj["ENABLE_AI"]["ENABLE_3D_BODY_SKELETON_MOTION"]
+  $ENABLE_3D_STICKER = $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_3D_STICKER"]
+  $ENABLE_AR = $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_AR"]
+  $ENABLE_AR_LUMEN_ESTIMATE = $config_json_obj["ENABLE_AR"]["ENABLE_AR_LUMEN_ESTIMATE"]
+  $ENABLE_AR_DEVICE_TRACKER = $config_json_obj["ENABLE_AR"]["ENABLE_AR_DEVICE_TRACKER"]
+  $ENABLE_AR_MARKER = $config_json_obj["ENABLE_AR"]["ENABLE_AR_MARKER"]
+
+  # ENABLE_3D
+  if $ENABLE_3D == "1"
+     puts "Podfile -> ENABLE_3D : 开启"
+  else
+     puts "Podfile -> ENABLE_3D : 关闭"
+  end
+
+  # 顶点动画
+  if $ENABLE_3D_ALEMBIC_VERTEX_ANIMATION == "1"
+    puts "Podfile -> 顶点动画 : 开启"
+  else
+    puts "Podfile -> 顶点动画 : 关闭"
+  end
+
+  # 粒子特效
+  if $ENABLE_3D_PARTICLE_EFFECT == "1"
+    puts "Podfile -> 粒子特效 : 开启"
+  else
+    puts "Podfile -> 粒子特效 : 关闭"
+  end
+
+  # renderv2
+  if $ENABLE_RENDERV2 == "1"
+    puts "Podfile -> ENABLE_RENDERV2 : 开启"
+  else
+    puts "Podfile -> ENABLE_RENDERV2 : 关闭"
+  end
+
+  # 毛发
+  if $ENABLE_3D_FUR == "1"
+    puts "Podfile -> 毛发 : 开启"
+  else
+    puts "Podfile -> 毛发 : 关闭"
+  end
+
+  # DynamicBone
+  if $ENABLE_3D_DYNAMIC_BONE == "1"
+    puts "Podfile -> DynamicBone : 开启"
+  else
+    puts "Podfile -> DynamicBone : 关闭"
+  end
+
+  # Animoji
+  if $ENABLE_3D_ANIMOJI == "1"
+    puts "Podfile -> Animoji : 开启"
+  else
+    puts "Podfile -> Animoji : 关闭"
+  end
+
+  # bullet
+  if $ENABLE_3D_BULLET_PHYSICS == "1"
+    puts "Podfile -> ENABLE_3D_BULLET_PHYSICS : 开启"
+  else
+     puts "Podfile -> ENABLE_3D_BULLET_PHYSICS : 关闭"
+  end
+
+  if $ENABLE_3D_PHYSICS_SIMULATION == "1"
+     puts "Podfile -> ENABLE_3D_PHYSICS_SIMULATION : 打开"
+  else
+     puts "Podfile -> ENABLE_3D_PHYSICS_SIMULATION : 关闭"
+  end
+
+  if $ENABLE_3D_BONE_COLLISION == "1"
+     puts "Podfile -> ENABLE_3D_BONE_COLLISION : 打开"
+  else
+     puts "Podfile -> ENABLE_3D_BONE_COLLISION : 关闭"
+  end
+
+  # Sticker3D
+  if $ENABLE_3D_STICKER == "1"
+    puts "Podfile -> ENABLE_3D_STICKER : 开启"
+  else
+    puts "Podfile -> ENABLE_3D_STICKER : 关闭"
+  end
+
+  # ENABLE_AR
+  if $ENABLE_AR == "1"
+     puts "Podfile -> ENABLE_AR : 开启"
+  else
+     puts "Podfile -> ENABLE_AR : 关闭"
+  end
+
+  # ENABLE_AR_LUMEN_ESTIMATE
+  if $ENABLE_AR_LUMEN_ESTIMATE == "1"
+    puts "Podfile -> ENABLE_AR_LUMEN_ESTIMATE : 开启"
+  else
+    puts "Podfile -> ENABLE_AR_LUMEN_ESTIMATE : 关闭"
+  end
+
+  # ENABLE_AR_DEVICE_TRACKER
+  if $ENABLE_AR_DEVICE_TRACKER == "1"
+    puts "Podfile -> ENABLE_AR_DEVICE_TRACKER : 开启"
+  else
+    puts "Podfile -> ENABLE_AR_DEVICE_TRACKER : 关闭"
+  end
+
+  # ENABLE_AR_MARKER
+  if $ENABLE_AR_MARKER == "1"
+    puts "Podfile -> ENABLE_AR_MARKER : 开启"
+  else
+    puts "Podfile -> ENABLE_AR_MARKER : 关闭"
+  end
+
+  # ENABLE_AI
+  if $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_AI"] == "1"
+     puts "Podfile -> ENABLE_AI : 开启"
+  else
+     puts "Podfile -> ENABLE_AI : 关闭"
+  end
+
+  # ENABLE_3D_BODY_SKELETON_MOTION
+  if $ENABLE_3D_BODY_SKELETON_MOTION == "1"
+     puts "Podfile -> ENABLE_3D_BODY_SKELETON_MOTION : 开启"
+  else
+     puts "Podfile -> ENABLE_3D_BODY_SKELETON_MOTION : 关闭"
+  end
+
+     system("cmake \
+            -DENABLE_3D=#{$ENABLE_3D} \
+            -DENABLE_3D_BULLET_PHYSICS=#{$ENABLE_3D_BULLET_PHYSICS} \
+            -DENABLE_3D_ALEMBIC_VERTEX_ANIMATION=#{$ENABLE_3D_ALEMBIC_VERTEX_ANIMATION} \
+            -DENABLE_3D_PARTICLE_EFFECT=#{$ENABLE_3D_PARTICLE_EFFECT} \
+            -DENABLE_3D_FUR=#{$ENABLE_3D_FUR} \
+            -DENABLE_3D_DYNAMIC_BONE=#{$ENABLE_3D_DYNAMIC_BONE} \
+            -DENABLE_3D_ANIMOJI=#{$ENABLE_3D_ANIMOJI} \
+            -DENABLE_RENDERV2=#{$ENABLE_RENDERV2} \
+            -DENABLE_3D_PHYSICS_SIMULATION=#{$ENABLE_3D_PHYSICS_SIMULATION} \
+            -DENABLE_3D_BONE_COLLISION=#{$ENABLE_3D_BONE_COLLISION} \
+            -DENABLE_3D_STICKER=#{$ENABLE_3D_STICKER} \
+            -DENABLE_AR=#{$ENABLE_AR} \
+            -DENABLE_AR_LUMEN_ESTIMATE=#{$ENABLE_AR_LUMEN_ESTIMATE} \
+            -DENABLE_AR_DEVICE_TRACKER=#{$ENABLE_AR_DEVICE_TRACKER} \
+            -DENABLE_AR_MARKER=#{$ENABLE_AR_MARKER} \
+            -DENABLE_3D_BODY_SKELETON_MOTION=#{$ENABLE_3D_BODY_SKELETON_MOTION} \
+            .") or exit(3)
+end
+
+def postprocess_jsbinding
+  puts "Postprocess for jsbinding..."
+  system("../binding/postprocess.sh") or exit(4)
+end
+
+def generate_lak_components
+  puts "Generating Components for LightAssetKit..."
+  system("../light_asset_kit_generator/components_generator.sh") or exit(4)
+end
+
+def update_dependency
+  $RootPath = File.expand_path('../.')
+
+  system("python3 ../update_dependency.py -d '#$RootPath' -p ios") or exit(1)
+end
+
+# 资源拷贝
+def copy_resources
+  puts "Copying shaders..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/shaders/essl")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/shaders/essl")
+  system("cp -r ../3rdparty/LightRenderer/assets/shaders/essl/ PituMotionDemo/bundle/LightSDK.bundle/shaders/essl")
+
+  puts "Copying images..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/images")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/images")
+  system("cp -r ../3rdparty/LightRenderer/assets/images/ PituMotionDemo/bundle/LightSDK.bundle/images")
+
+  puts "Copying ganMetallib..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/gan")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/gan")
+  system("cp -r ../3rdparty/LightRenderer/third_party/GYAISDK/models/gan/ PituMotionDemo/bundle/LightSDK.bundle/gan")
+
+  puts "Copying js..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/js")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/js")
+  system("cp -r ../3rdparty/LightRenderer/assets/js/ PituMotionDemo/bundle/LightSDK.bundle/js")
+
+  puts "Copying lua..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/lua")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/lua")
+  system("cp -r ../3rdparty/LightRenderer/assets/lua/ PituMotionDemo/bundle/LightSDK.bundle/lua")
+
+  puts "Copying personface..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/personface")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/personface")
+  system("cp -r ../3rdparty/LightRenderer/assets/personface/ PituMotionDemo/bundle/LightSDK.bundle/personface")
+
+  puts "Copying default..."
+  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/default")
+  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/default")
+  system("cp -r ../3rdparty/LightRenderer/assets/default/ PituMotionDemo/bundle/LightSDK.bundle/default")
+
+#  puts "Copying default lut..."
+#  system("rm -rf PituMotionDemo/bundle/LightSDK.bundle/lut")
+#  system("mkdir -p PituMotionDemo/bundle/LightSDK.bundle/lut")
+#  system("cp -r ../3rdparty/LightRenderer/assets/lut/ PituMotionDemo/bundle/LightSDK.bundle/lut")
+
+  puts "Copying device_config.json..."
+  system("cp ../3rdparty/LightRenderer/assets/device_config_ios.json PituMotionDemo/bundle/LightSDK.bundle/device_config.json")
+end
+
+def copy_ue_resource
+  system("cp -rf ./Pods/UEFrameworkPod/cookeddata/* ./PituMotionDemo/cookeddata/")
+  system("cp -rf ./Pods/UEFrameworkPod/PersistentDownloadDir/* ./PituMotionDemo/UE4/PersistentDownloadDir/")
+  system("rm -rf ./Pods/UEFrameworkPod/cookeddata")
+  system("rm -rf ./Pods/UEFrameworkPod/PersistentDownloadDir")
+end
+
+# 创建本地仓库使用的文件夹
+def build_dir
+  system("rm -rf 'iOSResult'")
+  system("mkdir 'iOSResult'")
+  system("mkdir './iOSResult/LightSDKLibraries'")
+  system("mkdir './iOSResult/AEKit3DEngine'")
+  system("mkdir './iOSResult/LightCV'")
+  system("mkdir './iOSResult/ResultBundle'")
+  system("mkdir './iOSResult/MotionSDK'")
+end
+
+#拷贝三方库
+def copy_libraries
+
+  system("cp -rf #$lightrenderer_path/third_party/GYAISDK/lib/ios/*.framework ./iOSResult/LightCV/")
+  system("cp -rf ../3rdparty/ScriptEngine/libScriptEngine.a ./iOSResult/LightSDKLibraries/")
+  system("cp -rf ../3rdparty/TAVCodec/third_party/iOS/libtav-vendor.a ./iOSResult/LightSDKLibraries/")
+
+  if $ENABLE_3D == "1" || $ENABLE_3D_STICKER == "1"
+    puts "ENABLE_3D or ENABLE_3D_STICKER 开启，添加Ace3DEngine库"
+    system("cp -rf #$lightrenderer_path/third_party/Ace3DEngine/lib/iOS/*.a ./iOSResult/AEKit3DEngine/")
+  else
+    puts "ENABLE_3D and ENABLE_3D_STICKER 同时关闭，不添加Ace3DEngine库"
+  end
+
+  if $ENABLE_3D == "1"
+  else
+     puts "ENABLE_3D:关闭"
+  end
+
+  if $ENABLE_3D_BULLET_PHYSICS  == "1"
+    system("cp -rf ../3rdparty/physics/bullet/libs/ios/*.a ./iOSResult/LightSDKLibraries/")
+    puts "ENABLE_3D_BULLET_PHYSICS: 开启, 添加Bullet库！"
+  else
+    puts "ENABLE_3D_BULLET_PHYSICS: 关闭，不添加Bullet库！！！"
+  end
+
+  if $ENABLE_AR == "1"
+    puts "ENABLE_AR"
+    system("cp -rf ../3rdparty/dimension/ios/libdimension.a ./iOSResult/LightSDKLibraries/")
+    system("cp -rf ./PituMotionDemo/bundle/LightSegmentGround.bundle ./iOSResult/ResultBundle/")
+    system("cp -rf ./PituMotionDemo/bundle/LightEstimation.bundle ./iOSResult/ResultBundle/")
+  end
+
+  # --------- MotionSDK 宏控制 -------
+  if $config_json_obj["ENABLE_AI"]["ENABLE_3D_FACE_MOTION_DEPRECATED"] == "1" || $config_json_obj["ENABLE_CV_3D_FACE"]["ENABLE_CV_3D_FACE_MOTION"] == "1" || $config_json_obj["ENABLE_CV_3D_BODY_MESH"]["ENABLE_CV_3D_BODY_MESH_MOTION"] == "1" || $config_json_obj["ENABLE_CV_2D_BODY"]["ENABLE_CV_2D_BODY_MOTION"] == "1"
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/iOS/libmotion_common.a ./iOSResult/LightSDKLibraries/")
+  end
+
+  if $config_json_obj["ENABLE_AI"]["ENABLE_3D_FACE_MOTION_DEPRECATED"] == "1" || $config_json_obj["ENABLE_CV_3D_FACE"]["ENABLE_CV_3D_FACE_MOTION"] == "1"
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/iOS/libmotion_face3d.a ./iOSResult/LightSDKLibraries/")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionFaceMesh.bundle ./iOSResult/ResultBundle/")
+    system("rm -rf PituMotionDemo/bundle/LightMotionFaceMesh.bundle")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionFaceMesh.bundle ./PituMotionDemo/bundle/")
+  else
+    system("mkdir -p ./iOSResult/ResultBundle/LightMotionFaceMesh.bundle")
+    system("mkdir -p ./PituMotionDemo/bundle/LightMotionFaceMesh.bundle")
+  end
+
+  if $config_json_obj["ENABLE_CV_2D_BODY"]["ENABLE_CV_2D_BODY_MOTION"] == "1"
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/iOS/libmotion_skeleton.a ./iOSResult/LightSDKLibraries/")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionKeypoint2D.bundle ./iOSResult/ResultBundle/")
+    system("rm -rf PituMotionDemo/bundle/LightMotionKeypoint2D.bundle")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionKeypoint2D.bundle ./PituMotionDemo/bundle/")
+  else
+    system("mkdir -p ./iOSResult/ResultBundle/LightMotionKeypoint2D.bundle")
+    system("mkdir -p ./PituMotionDemo/bundle/LightMotionKeypoint2D.bundle")
+  end
+
+  if $config_json_obj["ENABLE_CV_3D_BODY_MESH"]["ENABLE_CV_3D_BODY_MESH_MOTION"] == "1"
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/iOS/libmotion_posemesh.a ./iOSResult/LightSDKLibraries/")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/iOS/libmotion_skeleton.a ./iOSResult/LightSDKLibraries/")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionMeshNet.bundle ./iOSResult/ResultBundle/")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionKeypoint2D.bundle ./iOSResult/ResultBundle/")
+    system("rm -rf PituMotionDemo/bundle/LightMotionMeshNet.bundle")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionMeshNet.bundle ./PituMotionDemo/bundle/")
+    system("rm -rf PituMotionDemo/bundle/LightMotionKeypoint2D.bundle")
+    system("cp -rf ../3rdparty/MotionSDK/motionsdk/models/LightMotionKeypoint2D.bundle ./PituMotionDemo/bundle/")
+  else
+    system("mkdir -p ./iOSResult/ResultBundle/LightMotionKeypoint2D.bundle")
+    system("mkdir -p ./PituMotionDemo/bundle/LightMotionKeypoint2D.bundle")
+    system("mkdir -p ./iOSResult/ResultBundle/LightMotionMeshNet.bundle")
+    system("mkdir -p ./PituMotionDemo/bundle/LightMotionMeshNet.bundle")
+  end
+  # --------- MotionSDK 宏控制 -------
+
+end
+
+# 打包LightRenderer及其以来的arm64架构进入iOSResult
+def arm64_arch
+  build_dir
+
+  system("sh #$lightrenderer_path/build.sh -f -p ios release config_name=#{$config_name}") or exit(2)
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/liblightrenderer.a ./iOSResult/LightSDKLibraries/")
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/third_party/fusion/libfusion.a ./iOSResult/LightSDKLibraries/")
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/third_party/fusion/third_party/bgfx_group/*.a ./iOSResult/LightSDKLibraries/")
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/third_party/thread/libthread.a ./iOSResult/LightSDKLibraries/")
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/third_party/jsonParse/libjsonParse.a ./iOSResult/LightSDKLibraries/")
+  system("cp -f #$lightrenderer_path/out/cmake-ios-release-arm64/log/liblogging.a ./iOSResult/LightSDKLibraries/")
+  copy_libraries
+end
+
+def useUEEngine
+  # 引擎和资源一起更新
+  $Tag_UEFramework = "dev-20220106102725.fa49d2a867f.e351b7050.p-d6e7045bfd3f4cacb0f6984b2847c813.1132"
+  $Tag_ResType = "development" #默认development，但是引擎也可以打出来http的shipping
+  # pod 'UEFrameworkPod', :git => "http://git.code.oa.com/Next-QQ/UEFrameworkPod.git", :tag => $Tag_UEFramework
+  pod 'UEFrameworkPod' , "3.6.5.4"
+  pod "QQNetworkEngine", "= 1.2.7"
+  pod 'MSFSDK', '8.6.5.6'
+
+  #$PandoraFrameworkVersion = "0.0.1"
+  #pod 'PandoraFrameworkPod', $PandoraFrameworkVersion
+
+#  # 资源临时逻辑
+#  # update cookeddata
+#  cookeddataURL = "https://cmshowar-1251316161.cos.ap-guangzhou.myqcloud.com/ue_demo_res/" + $Tag_ResType + "." + $Tag_UEFramework + ".zip"
+#  tmpFile = "tempCookedZip." + $Tag_UEFramework
+#
+#  # 判断是否有缓存，没有则下载并放入目标目录
+#  if !File.exist?(tmpFile)
+#    `rm -rf cookeddata`
+#    `rm tempCookedZip.*`
+#    `curl #{cookeddataURL} -o "#{tmpFile}"`
+#    `unzip -o "#{tmpFile}" -d ./`
+#  end
+end
+
+pre_install do |installer|
+  if $force_use_source == "true" || ENV['AUTOTEST']
+      puts "Arm64"
+      if $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_UE4_X64"] != "1"
+        arm64_arch
+      end
+  else
+    system("rm -rf 'iOSResult'")
+  end
+  copy_resources
+  if $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_UE4_X64"] == "1"
+    copy_ue_resource
+  end
+end
+
+$Version_LightSDK = "2.2.1.0-test"
+$Version_LightCV = "0.37.5.1"
+$Version_3DEngine = "3.6.1.106"
+
+if ENV.key?("Version_LightSDK") && ENV["Version_LightSDK"] != ""
+  $Version_LightSDK = ENV["Version_LightSDK"];
+  puts "success " + $Version_LightSDK
+end
+
+# PAG版本使用说明
+# 通用版本号：version-movie-symbol, pag完整版，包含完整符号信息
+# 手Q使用版本：version-noffmpeg, pag不包含ffmpeg h264、hevc解码及skia、ffmpeg符号
+# PAG单次会构建多个版本，pod引用需要指定具体版本信息，不能使用~>
+$Version_Libpag = '4.1.9-noffavc'
+$Version_tnn = "0.3.6.2"
+
+target 'PituMotionDemo' do
+  update_dependency
+  create_jsbinding
+  postprocess_jsbinding
+  generate_lak_components
+  if ENV['AUTOTEST'] || $force_use_source == "true"
+    use_frameworks!
+  end
+  pod 'YYModel', git:'https://github.com/ibireme/YYModel.git' , :modular_headers => true
+  pod 'RSPlayPauseButton', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/RSPlayPauseButton.git', :tag => '1.0.3'
+  pod 'SDWebImage', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/SDWebImage.git', :tag => '5.0.3'
+  pod 'AFDownloadRequestOperation', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/AFDownloadRequestOperation.git', :tag => '2.0.1'
+  pod 'AFNetworking', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/AFNetworking.git', :tag => '2.7.0'
+  pod 'iToastSC', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/toast-notifications-ios.git', :tag=> '0.0.4'
+  pod 'ZipArchive', :git => 'http://git.woa.com/Pitu_iOS_ThirdParty/ZipArchive.git', :tag => '1.4.1'
+  pod 'MBProgressHUD', :git => 'http://git.woa.com/TencentSpecs/MBProgressHUD.git', :tag => '1.1.0'
+  pod 'gRPC-ProtoRPC', '1.33.1'
+  pod 'TZImagePickerController', '3.6.4'
+#   pod 'TCGPUImage', '0.0.16-gy'
+#  pod 'AEBase'
+  pod 'BuglyOA', '2.5.71'
+  pod 'AHImageConverter'
+  pod 'Masonry', :git => 'https://git.woa.com/TencentSpecs/Masonry.git'
+  pod 'QCloudCOSXML/Slim', '6.0.7'
+  pod 'LightMonitor', :git => 'https://git.woa.com/hoganliu/LightMonitor.git', :tag => '0.2.3'
+  pod "MMKV", "= 1.0.23.5"
+  pod 'MSDKDns_C11', '1.3.5'
+
+  # LightSDK相关
+  pod 'libpag', $Version_Libpag
+  if ENV['use_devops'] == "true"
+    pod 'LightCV/LightEmotionScoreModel' , $Version_LightCV
+    pod 'LightCV/LightTrackStickerModel' , $Version_LightCV
+    puts "Using devops"
+  else
+    pod 'tnn/Resource', $Version_tnn
+    pod 'LightCV/Resource' , $Version_LightCV
+    pod 'AEKit3DEngine/Resource' , $Version_3DEngine
+    puts "Using local source"
+  end
+  # 引擎和资源一起更新
+  if $config_json_obj["ENABLE_COMPONENTS"]["ENABLE_UE4_X64"] == "1"
+#    pod 'UEFrameworkPod', :path => '../UEFrameworkPod/UEFrameworkPod.podspec'
+    useUEEngine
+    arm64_arch
+  end
+
+  if ENV['AUTOTEST'] || $force_use_source == "true"
+    pod 'light' , :path=> '../light.podspec'
+  else
+    pod 'LightSDK' , $Version_LightSDK
+  end
+end
+
+target 'PituMotionDemoTests' do
+  use_frameworks!
+  inherit! :search_paths
+  pod 'OHHTTPStubs', '~> 9.0.0', :modular_headers => true
+  pod 'TBUIAutoTest', :git => 'https://github.com/yulingtianxia/TBUIAutoTest.git', :modular_headers => true
+  pod 'OCMock', '~> 3.6', :modular_headers => true
+  pod 'CocoaLumberjack', '~> 3.6.1', :modular_headers => true
+  pod 'YYModel', git:'https://github.com/ibireme/YYModel.git' , :modular_headers => true
+  pod 'JRSwizzle', '~> 1.0', :modular_headers => true
+  pod 'RSSwizzle', '~> 0.1.0', :modular_headers => true
+  pod 'SSZipArchive', '~> 2.2.2', :modular_headers => true
+  pod 'KIF/IdentifierTests', '~> 3.7.9', :modular_headers => true
+  pod 'NextTest', '~>1.5.3', :subspecs => ['ModifyForWS']
+  pod 'NTTool', '~> 1.5.3', :subspecs => ['PermissionTrigger', 'PermissionProcess']
+  pod 'eDistantObject', :git => 'http://git.woa.com/limingdai/eDistantObject.git', :modular_headers => true
+  pod 'NTWarder', '~> 1.5.3'
+
+  if ENV['AUTOTEST'] || $force_use_source == "true"
+    pod 'light' , :path=> '../light.podspec'
+  else
+    pod 'LightSDK' , $Version_LightSDK
+  end
+  pod 'tnn/Resource', $Version_tnn
+  pod 'LightCV/Resource' , $Version_LightCV
+  pod 'AEKit3DEngine/Resource' , $Version_3DEngine
+  pod 'libpag', $Version_Libpag
+end
+
+def controller_debug_symbol (targetName)
+  blackList = Array["abseil",
+                    "AFDownloadRequestOperation",
+                    "AFNetworking",
+                    "AHImageConverter",
+                    "gRPC",
+                    "gRPC-Core",
+                    "iToastSC",
+                    "Masonry",
+                    "MBProgressHUD",
+                    "gRPC-ProtoRPC",
+                    "gRPC-RxLibrary",
+                    "Protobuf",
+                    "QCloudCore",
+                    "QCloudCOSXML",
+                    "RSPlayPauseButton",
+                    "SDWebImage",
+                    "TZImagePickerController",
+                    "ZipArchive",
+                    "BoringSSL-GRPC"]
+  if blackList.include?(targetName)
+    return true
+  else
+    return false
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+    end
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+      if ENV['static_build'] == "1"
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)','STATIC_BUILD']
+      else
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+      end
+
+      if ENV["dsym_debug"] == "1"
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+      end
+      # light需要在release的时候开启GCC_OPTIMIZATION_LEVEL为"z"
+      if target.name == "light" && config.name == "Release"
+        puts "light Release GCC_OPTIMIZATION_LEVEL设置为z"
+        config.build_settings['GCC_OPTIMIZATION_LEVEL'] = 'z'
+      end
+
+      if target.name == "TZImagePickerController"
+        xcconfig_path = config.base_configuration_reference.real_path
+        xcconfig = File.read(xcconfig_path)
+        replace = "-framework \"Photos\" -framework \"UIKit\" -framework \"CoreGraphics\" -framework \"AVFoundation\" -framework \"CoreMedia\" -framework \"CoreLocation\" -framework \"QuartzCore\" -framework \"MobileCoreServices\" -framework \"ImageIO\""
+        hasReplace = xcconfig.index(replace)
+        new_xcconfig = xcconfig
+        if hasReplace == nil
+          new_xcconfig = xcconfig.sub("-framework \"Photos\"", replace)
+        end
+        File.open(xcconfig_path, "w") { |file| file << new_xcconfig }
+      end
+
+      if ["QQFoundation", "MBProgressHUD", "AHImageConverter", "AFNetworking", "QQNetworkEngine"].include? target.name
+        xcconfig_path = config.base_configuration_reference.real_path
+        xcconfig = File.read(xcconfig_path)
+        replace = "-framework \"Photos\" -framework \"UIKit\" -framework \"CoreGraphics\" -framework \"AVFoundation\" -framework \"CoreMedia\" -framework \"CoreLocation\" -framework \"QuartzCore\" -framework \"MobileCoreServices\" -framework \"ImageIO\""
+        hasReplace = xcconfig.index(replace)
+        new_xcconfig = xcconfig
+        if hasReplace == nil
+          ld_flags = 'OTHER_LDFLAGS = $(inherited) -framework "Photos" -framework "UIKit" -framework "CoreGraphics" -framework "AVFoundation" -framework "CoreMedia" -framework "CoreLocation" -framework "QuartzCore" -framework "MobileCoreServices" -framework "ImageIO"'
+          new_xcconfig = xcconfig + ld_flags
+        end
+        File.open(xcconfig_path, "w") { |file| file << new_xcconfig }
+      end
+
+      if target.name == "QCloudCore"
+        xcconfig_path = config.base_configuration_reference.real_path
+        xcconfig = File.read(xcconfig_path)
+        ld_flags = "OTHER_CFLAGS = $(inherited) -fmodules -fcxx-modules"
+        hasReplace = xcconfig.index(ld_flags)
+        new_xcconfig = xcconfig
+        if hasReplace == nil
+          new_xcconfig = xcconfig + ld_flags
+        end
+        File.open(xcconfig_path, "w") { |file| file << new_xcconfig }
+      end
+
+
+
+
+      if ENV['AUTOTEST']
+        xcconfig_path = config.base_configuration_reference.real_path
+        xcconfig = File.read(xcconfig_path)
+        new_xcconfig = xcconfig.sub('GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1', 'GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1 AUTOTEST=1')
+        File.open(xcconfig_path, "w") { |file| file << new_xcconfig }
+      end
+
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PODS_USING_FRAMEWORK=1'
+
+      # 没有使用use_frameworks!的时候依赖库低版本会有问题
+      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 9.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+      end
+
+      # 以下为屏蔽符号表输出，避免上传数量过大
+      if controller_debug_symbol(target.name) && config.name == "Release"
+        config.build_settings['GCC_GENERATE_DEBUGGING_SYMBOLS'] = 'No'
+      end
+
+      if target.name == "QProtobufCodec"
+        config.build_settings["HEADER_SEARCH_PATHS"] ||= "$(inherited) "
+        config.build_settings["HEADER_SEARCH_PATHS"] << "${PODS_ROOT}/QProtobufCodec/QProtobufCodec"
+      end
+    end
+  end
+end
