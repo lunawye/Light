@@ -1,0 +1,6 @@
+framework module Pods_LightSDK {
+  umbrella header "Pods-LightSDK-umbrella.h"
+
+  export *
+  module * { export * }
+}
